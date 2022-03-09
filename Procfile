@@ -1,1 +1,1 @@
-worker: python heroku_listener.py
+worker: python listener.py
