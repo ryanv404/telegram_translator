@@ -2,7 +2,5 @@ config.ini
 *.session-journal
 *.session
 *.jpg
-README.md
-LICENSE
 /real-time-tweet-streamer
 /__pycache__
