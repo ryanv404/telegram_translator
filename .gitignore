@@ -5,3 +5,4 @@ config.ini
 README.md
 LICENSE
 /real-time-tweet-streamer
+/__pycache__
