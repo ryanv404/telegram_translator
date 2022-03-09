@@ -41,6 +41,8 @@ def get_chat_name(chat):
             return 'Ukraine Pravda'
         case 'a_shtirlitz':
             return 'Anatoly Shtirlitz'
+        case 'bbbreaking':
+            return 'Earlier than others. Almost.'
         case _:
             if chat.title:
                 return chat.title
