@@ -36,6 +36,9 @@ async def handler(e):
         else:
             link = f't.me/c/{chat.id}'
 
+        # Escape common markdown charaters that may be in the message text.
+        # ...here
+
         flag = get_flag(content.src)
         message_id = e.id
         message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{content.text} \n\n[👁‍🗨]({link}/{message_id})'
