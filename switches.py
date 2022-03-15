@@ -19,6 +19,8 @@ def get_chat_name(chat):
             return f'{chat.title} \nRussia state-affiliated media 🤨'
         case 'rian_ru':
             return f'{chat.title} \nRussia state-affiliated media 🤨'
+        case 'zvezdanews':
+            return f'{chat.title} \nRussia state-affiliated media 🤨'
         case 'mvs_ukraine':
             return f'{chat.title} \nUkraine state-affiliated media 🤷‍♂️'
         case _:
