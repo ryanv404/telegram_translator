@@ -1,8 +1,8 @@
 config.ini
 *.session-journal
-*.session
 *.jpg
 *.png
 /real-time-tweet-streamer
 /__pycache__
 /real-time-tweet-stream
+*.session
