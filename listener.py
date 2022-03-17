@@ -28,6 +28,7 @@ async def handler(e):
     content = translator.translate(e.message.message)
 
     if content.text:
+        text = content.text
         chat = await e.get_chat()
         chat_name = get_chat_name(chat)
 
@@ -36,9 +37,12 @@ async def handler(e):
         else:
             link = f't.me/c/{chat.id}'
 
-        flag = get_flag(content.src)
+        # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
+        text = text.replace('Anxiety!', 'Alert!')
+        
         message_id = e.id
-        message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{content.text} \n\n[👁‍🗨]({link}/{message_id})'
+        flag = get_flag(content.src)
+        message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{text} \n\n[👁‍🗨]({link}/{message_id})'
 
         try:
             await client.send_message(channel_link, message, link_preview=False)
