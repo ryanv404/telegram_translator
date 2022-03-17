@@ -5,4 +5,3 @@ config.ini
 /real-time-tweet-streamer
 /__pycache__
 /real-time-tweet-stream
-*.session
