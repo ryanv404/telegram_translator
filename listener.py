@@ -30,8 +30,7 @@ async def handler(e):
     if content.text:
         text = content.text
         chat = await e.get_chat()
-        if chat.username != 'ryan_test_channel':
-            chat_name = get_chat_name(chat)
+        chat_name = get_chat_name(chat)
 
         if chat.username:
             link = f't.me/{chat.username}'
@@ -45,7 +44,7 @@ async def handler(e):
         flag = get_flag(content.src)
         message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{text} \n\n[👁‍🗨]({link}/{message_id})'
 
-        if chat.username != 'ryan_test_channel':
+        if chat.username not in ['ryan_test_channel', 'ryan_v404']:
             try:
                 await client.send_message(channel_link, message, link_preview=False)
             except:
