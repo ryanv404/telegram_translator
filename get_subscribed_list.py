@@ -16,12 +16,12 @@ async def start():
     await client.start()
 
     print('STARTING...')
-    dialogs = await client.iter_dialogs()
     print('dialogs list:')
-    print(dialogs)
-    print('first 2 dialogs:')
-    print(dialogs[0])
-    print(dialogs[1])
+    num = 1
+    for dialog in client.iter_dialogs():
+        print(f'DIALOG #{num}')
+        print(dialog)
+        num += 1
     print('FINISHED!')
     client.disconnect()
 
