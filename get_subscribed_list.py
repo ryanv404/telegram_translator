@@ -10,20 +10,18 @@ username = os.environ.get('username')
 channel_link = os.environ.get('channel_link')
 
 # Create the client
-
 async def start():
     client = TelegramClient(username, api_id, api_hash)
     await client.start()
-
     print('STARTING...')
-    print('dialogs list:')
-    num = 1
+    dialog_list = []
     async for dialog in client.iter_dialogs():
-        print(f'DIALOG #{num}')
-        print(dialog)
-        num += 1
+        dialog_list.append(dialog.name)
     print('FINISHED!')
-    client.disconnect()
+    print(f'{len(dialog_list)} total dialogs')
+    print('dialogs list:')
+    print(dialog_list)
+    await client.disconnect()
 
 if __name__ == "__main__":
     asyncio.run(start())
