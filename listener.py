@@ -44,7 +44,7 @@ async def handler(e):
         flag = get_flag(content.src)
         message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{text} \n\n[👁‍🗨]({link}/{message_id})'
 
-        if chat.username not in ['ryan_test_channel', 'ryan_v404']:
+        if chat.username not in ['ryan_test_channel', 'ryan_v404', 'UkrRusWarNews']:
             try:
                 await client.send_message(channel_link, message, link_preview=False)
             except:
