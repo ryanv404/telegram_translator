@@ -29,9 +29,6 @@ client = TelegramClient(username, api_id, api_hash)
 client.start()
 print('[Telethon] Client is listening...')
 
-# Run client until a keyboard interrupt (ctrl+C)
-client.run_until_disconnected()
-
 input_channels_entities = []
 output_channel_entities = []
 
@@ -113,3 +110,6 @@ async def handler(e):
                 await client.forward_messages(output_channel_entities[0], message)
             except:
                 print('[Telethon] Error while forwarding video message!')
+
+# Run client until a keyboard interrupt (ctrl+C)
+client.run_until_disconnected()
