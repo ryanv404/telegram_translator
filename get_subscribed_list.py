@@ -4,7 +4,6 @@ import asyncio
 import os
 import yaml
 import time
-import sys
 
 # Set config values
 api_id = os.environ.get('api_id')
@@ -28,7 +27,7 @@ async def start():
         if dialog.entity.username is not None:
             dialog_list.append(dialog.entity.username)
 
-    for channel_name in channel_names[0:5]:
+    for channel_name in channel_names:
         try:
             await client(JoinChannelRequest(channel_name))
             print('SUBSCRIBED TO', channel_name)
@@ -36,10 +35,14 @@ async def start():
         except Exception as e:
             print('COULD NOT SUBSCRIBE TO', channel_name)
             print(e)
-            sys.exit(1)
+
+    async for dialog in client.iter_dialogs():
+        if dialog.entity.username is not None:
+            print('-', dialog.entity.username)
+            dialog_list.append(dialog.entity.username)
 
     print('FINISHED!')
-    print(f'{len(list(set([*dialog_list, *channel_names])))} total dialogs')
+    print(f'{len(list(set(dialog_list)))} total subscriptions')
 
     await client.disconnect()
 
