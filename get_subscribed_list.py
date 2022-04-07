@@ -18,7 +18,7 @@ async def start():
     print('STARTING...')
     print('dialogs list:')
     num = 1
-    for dialog in client.iter_dialogs():
+    async for dialog in client.iter_dialogs():
         print(f'DIALOG #{num}')
         print(dialog)
         num += 1
