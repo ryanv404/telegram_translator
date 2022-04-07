@@ -99,7 +99,7 @@ async def handler(e):
             link = f't.me/c/{chat.id}'
 
         # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
-        text = text.replace('Anxiety!', 'Alert!')
+        # text = text.replace('Anxiety!', 'Alert!')
         
         message_id = e.id
         # flag = get_flag(content.src)
