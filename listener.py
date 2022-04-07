@@ -7,6 +7,11 @@ import yaml
 import os
 import re
 
+# Logging as per docs
+logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.WARNING)
+logging.getLogger('telethon').setLevel(level=logging.WARNING)
+logger = logging.getLogger(__name__)
+
 # Set config values
 api_id = os.environ.get('api_id')
 api_hash = os.environ.get('api_hash')
@@ -20,11 +25,12 @@ with open('config.yml', 'rb') as f:
 # Create the client
 client = TelegramClient(username, api_id, api_hash)
 
-# Logging as per docs
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.WARNING)
-logging.getLogger('telethon').setLevel(level=logging.WARNING)
-logger = logging.getLogger(__name__)
+# Connect client
+client.start()
+print('[Telethon] Client is listening...')
+
+# Run client until a keyboard interrupt (ctrl+C)
+client.run_until_disconnected()
 
 input_channels_entities = []
 output_channel_entities = []
@@ -44,7 +50,7 @@ if not input_channels_entities:
     # sys.exit(1)
 
 num_output_channels = len(output_channel_entities)
-logging.info(f"Listening to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}. Forwarding messages to \"{config['output_channel_names'][0]}\"...")
+logging.info(f"[Telethon] Listening to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}. Forwarding messages to \"{config['output_channel_names'][0]}\"...")
 
 # Create a translator instance
 translator = Translator()
@@ -87,10 +93,3 @@ async def handler(e):
             await client.forward_messages(output_channel_entities[0], e.message)
         except:
             print('[Telethon] Error while forwarding video message!')
-
-# Connect client
-client.start()
-print('[Telethon] Client is listening...')
-
-# Run client until a keyboard interrupt (ctrl+C)
-client.run_until_disconnected()
