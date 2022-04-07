@@ -24,7 +24,7 @@ def get_chat_name(chat):
         case 'mvs_ukraine':
             return f'{chat.title} \nUkraine state-affiliated media 🤷‍♂️'
         case _:
-            if chat.title:
+            if hasattr(chat, 'title'):
                 return chat.title
             else:
                 return chat.username
