@@ -16,11 +16,11 @@ async def start():
     print('STARTING...')
     dialog_list = []
     async for dialog in client.iter_dialogs():
-        dialog_list.append(dialog.name)
+        dialog_list.append(dialog.entity.username)
     print('FINISHED!')
     print(f'{len(dialog_list)} total dialogs')
-    print('dialogs list:')
-    print(dialog_list)
+    for d in dialog_list:
+        print('-', d)
     await client.disconnect()
 
 if __name__ == "__main__":
