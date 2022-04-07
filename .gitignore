@@ -6,3 +6,4 @@ config.ini
 /__pycache__
 /real-time-tweet-stream
 # ryan_v404.session
+config.yml

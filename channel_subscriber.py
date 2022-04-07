@@ -13,13 +13,16 @@ phone = os.environ.get('phone')
 username = os.environ.get('username')
 channel_link = os.environ.get('channel_link')
 
+with open('config.yml', 'rb') as f:
+    config = yaml.safe_load(f)
+    
 # Create the client
 async def start():
     with open('channel_names.yml', 'rb') as f:
         channel_names = yaml.safe_load(f)
         channel_names = channel_names['channel_names']
 
-    client = TelegramClient(username, api_id, api_hash)
+    client = TelegramClient(config["session_name"], config["api_id"], config["api_hash"])
     await client.start()
 
     print('STARTING...')
