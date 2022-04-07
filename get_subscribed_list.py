@@ -1,5 +1,6 @@
 from telethon import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
+from telethon import errors
 import asyncio
 import os
 import yaml
@@ -28,21 +29,26 @@ async def start():
             dialog_list.append(dialog.entity.username)
 
     for channel_name in channel_names:
-        try:
-            await client(JoinChannelRequest(channel_name))
-            print('SUBSCRIBED TO', channel_name)
-            time.sleep(5)
-        except Exception as e:
-            print('COULD NOT SUBSCRIBE TO', channel_name)
-            print(e)
+        if channel_name not in dialog_list:
+            try:
+                await client(JoinChannelRequest(channel_name))
+                print('SUBSCRIBED TO', channel_name)
+            except errors.FloodWaitError as e:
+                print('COULD NOT SUBSCRIBE TO', channel_name)
+                print('Flood wait for', e.seconds, 'seconds')
+                time.sleep(e.seconds)
+            except Exception as e:
+                print('COULD NOT SUBSCRIBE TO', channel_name)
+                print(e)
 
+    print('FINISHED!')
+    new_dialog_list = []
     async for dialog in client.iter_dialogs():
         if dialog.entity.username is not None:
             print('-', dialog.entity.username)
-            dialog_list.append(dialog.entity.username)
+            new_dialog_list.append(dialog.entity.username)
 
-    print('FINISHED!')
-    print(f'{len(list(set(dialog_list)))} total subscriptions')
+    print(f'{len(list(set(new_dialog_list)))} total subscriptions')
 
     await client.disconnect()
 
