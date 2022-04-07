@@ -78,7 +78,7 @@ async def handler(e):
         flag = get_flag(content.src)
         message = f'📣 \n\n\"{flag}" [{chat_name}]({link}) \n\n{text} \n\n[👁‍🗨]({link}/{message_id})'
 
-        if chat.username not in ['ryan_test_channel', 'ryan_v404', 'UkrRusWarNews']:
+        if chat.username not in ['ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video']:
             try:
                 await client.send_message(channel_link, message, link_preview=False)
             except:
@@ -89,7 +89,27 @@ async def handler(e):
 async def handler(e):
     video = e.message.media.document
     if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
-        try:
-            await client.forward_messages(output_channel_entities[0], e.message)
-        except:
-            print('[Telethon] Error while forwarding video message!')
+        # content = translator.translate(e.message.message)
+
+        # if content.text:
+        # text = content.text
+        chat = await e.get_chat()
+        # chat_name = get_chat_name(chat)
+
+        if chat.username:
+            link = f't.me/{chat.username}'
+        else:
+            link = f't.me/c/{chat.id}'
+
+        # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
+        text = text.replace('Anxiety!', 'Alert!')
+        
+        message_id = e.id
+        # flag = get_flag(content.src)
+        message = f'🎬\n\n\"[{chat.title}]({link})\n\n{e.message.message}\n\n[↩]({link}/{message_id})'
+        
+        if chat.username not in ['ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video']:
+            try:
+                await client.forward_messages(output_channel_entities[0], message)
+            except:
+                print('[Telethon] Error while forwarding video message!')
