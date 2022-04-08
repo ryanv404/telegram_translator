@@ -78,7 +78,7 @@ input_channel_names:
 # The output channel names that the messages will be forwarded to.
 # The user running the client must have a write access to those channels, and have the channels present on theirs dialogs.
 output_channel_names:
-  - "ryan_test_channel"
+  - "telehunt_video"
 
 # The channel IDs that you'd like to forward messages from. (You can get a channel ID by forwarding any message from it to @userinfobot , and removing the -100 from the start )
 input_channel_ids: # Input Channel ID without quotes ''
@@ -151,7 +151,7 @@ input_channel_ids: # Input Channel ID without quotes ''
 
 # The output channel IDs that the messages will be forwarded to. (You can get a channel ID by forwarding any message from it to @userinfobot , and removing the -100 from the start )
 output_channel_ids:
-  - 1501240289 # Output Channel ID without quotes ''
+  - 1630951349 # Output Channel ID without quotes ''
 
 # An empty list should be set like this:
 # input_channel_ids: []
