@@ -1,7 +1,7 @@
 # t.me/opersvodki/3054
 # for some reason a link to t.me/opersvodki/3051 was inserted at the '4'
 
-from telethon import TelegramClient
+from telethon import TelegramClient, sync
 from telethon.tl.functions.messages import GetHistoryRequest
 from googletrans import Translator
 import yaml
