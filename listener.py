@@ -116,7 +116,7 @@ async def handler(e):
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
                 try:
-                    await client.send_message(output_channel_entities[0], e.message, parse_mode='html')
+                    await client.send_message(output_channel_entities[0], message, parse_mode='html', file=e.media)
                 except Exception as exc:
                     print('[Telethon] Error while forwarding video message!')
                     print(exc)
