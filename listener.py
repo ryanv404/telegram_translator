@@ -76,7 +76,7 @@ async def handler(e):
         flag = get_flag(content.src)
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
         # message = f'📣\n\n{border}\n"{flag}" [{chat_name}]({link})\n{border}\n\n{text}\n\n[👁‍🗨]({link}/{message_id})'
-        message = f'<p>📣<br><br>{border}<br>"{flag}" <a href="{link}">{chat_name}</a><br>{border}<br><br>{text}<br><br><a href="{link}/{message_id}">👁‍🗨</a></p>'
+        message = f'<p>📣</p><br><br><p>{border}</p><br><p>"{flag}" <a href="{link}">{chat_name}</a></p><br><p>{border}</p><br><br><p>{text}</p><br><br><a href="{link}/{message_id}">👁‍🗨</a>'
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
