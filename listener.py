@@ -75,14 +75,21 @@ async def handler(e):
         message_id = e.id
         flag = get_flag(content.src)
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-        # message = f'📣\n\n{border}\n"{flag}" [{chat_name}]({link})\n{border}\n\n{text}\n\n[👁‍🗨]({link}/{message_id})'
-        message = f'<p>📣\n\n</p><hr><p>{border}\n</p><p>"{flag}" <a href="{link}">{chat_name}</a>\n</p><p>{border}\n\n</p><p>{text}\n\n</p><a href="{link}/{message_id}">👁‍🗨</a>'
+        message = (
+            f'<article><p>{border}\n</p>'
+            f'<p><b>{chat_name}</b>\n</p>'
+            f'<p>ORIGINAL LANGUAGE: {flag}\n</p>'
+            f'<p>{link}/{message_id} ↩\n</p>' 
+            f'<p>{border}\n\n</p>'
+            f'<p><u>[TRANSLATED MESSAGE]</u>\n</p>'
+            f'<p>{text}</p></article>')
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
                 await client.send_message('https://t.me/UkrRusWarNews', message, link_preview=False, parse_mode='html')
-            except:
+            except Exception as exc:
                 print('[Telethon] Error while sending message!')
+                print(exc)
 
 # Listen for new video messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
@@ -102,14 +109,23 @@ async def handler(e):
             
             message_id = e.id
             border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-            message = f'{link}/{message_id} ↩\n\n{border}\n{chat.title}\n{border}\n\n[ORIGINAL MESSAGE]\n{e.message.message}\n\n[TRANSLATED MESSAGE]\n{text}'
+            message = (
+                f'<article><p>{link}/{message_id} ↩\n\n</p>'
+                f'<p>{border}\n</p>'
+                f'<p><b>{chat.title}</b>\n</p>'
+                f'<p>{border}\n\n</p>'
+                f'<p><u>[ORIGINAL MESSAGE]</u>\n</p>'
+                f'<p>{e.message.message}\n\n</p>'
+                f'<p><u>[TRANSLATED MESSAGE]</u>\n</p>'
+                f'<p>{text}</p></article>')
             e.message.message = message
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
                 try:
-                    await client.send_message(output_channel_entities[0], e.message)
-                except:
+                    await client.send_message(output_channel_entities[0], e.message, parse_mode='html')
+                except Exception as exc:
                     print('[Telethon] Error while forwarding video message!')
+                    print(exc)
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
