@@ -44,7 +44,7 @@ if not input_channels_entities:
     # sys.exit(1)
 
 num_output_channels = len(output_channel_entities)
-logging.info(f"[Telethon] Listening to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}. Forwarding messages to \"{config['output_channel_names'][0]}\"...")
+print(f"[Telethon] Listening to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
 
 # Listen for new messages
 @client.on(events.NewMessage)
@@ -80,7 +80,7 @@ async def handler(e):
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
-                await client.send_message('https://t.me/UkrRusWarNews', message, link_preview=False, parse_mode='html')
+                await client.send_message(config['aggregator_channel'], message, link_preview=False, parse_mode='html')
             except Exception as exc:
                 print('[Telethon] Error while sending message!')
                 print(exc)
@@ -116,7 +116,7 @@ async def handler(e):
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
                 try:
-                    await client.send_message(output_channel_entities[0], message, parse_mode='html', file=e.media)
+                    await client.send_message(output_channel_entities[0], message, parse_mode='html', file=e.media, link_preview=False)
                 except Exception as exc:
                     print('[Telethon] Error while forwarding video message!')
                     print(exc)
