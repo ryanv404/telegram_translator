@@ -1,10 +1,10 @@
 config.ini
-# config.yml
+config.yml
 *.session-journal
-# *.session
+*.session
 *.jpg
 *.png
-# *.ipynb
+*.ipynb
 /real-time-tweet-streamer
 /__pycache__
 /real-time-tweet-stream
