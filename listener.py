@@ -4,6 +4,7 @@ from googletrans import Translator
 from switches import get_chat_name, get_flag
 import logging
 import yaml
+import html
 import re
 
 # Logging as per docs
@@ -56,7 +57,6 @@ async def handler(e):
         text = content.text
         chat = await e.get_chat()
         chat_name = get_chat_name(chat)
-
         if chat.username:
             link = f't.me/{chat.username}'
         else:
@@ -67,13 +67,15 @@ async def handler(e):
         
         message_id = e.id
         flag = get_flag(content.src)
+
+        # Escape input text since using html parsing
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
         message = (
             f'<article><p class="title">{border}\n'
-            f'<b>{chat_name}</b>\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
             f'{border}\n\n</p>'
             f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
-            f'{text}\n\n</p>'
+            f'{html.escape(text)}\n\n</p>'
             f'<p class="footer">{border}\n'
             f'ORIGINAL LANGUAGE: {flag}\n'
             f'{link}/{message_id} ↩</p></article>') 
@@ -91,7 +93,6 @@ async def handler(e):
     video = e.message.media.document
     if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
         content = translator.translate(e.message.message)
-
         if content.text:
             text = content.text
             chat = await e.get_chat()
@@ -102,17 +103,18 @@ async def handler(e):
                 link = f't.me/c/{chat.id}'
             
             message_id = e.id
+            
+            # Escape input text since using html parsing
             border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
             message = (
                 f'<article><p class="header">{link}/{message_id} ↩\n\n'
                 f'{border}\n'
-                f'<p class="title"><b>{chat.title}</b>\n</p>'
+                f'<p class="title"><b>{html.escape(chat.title)}</b>\n</p>'
                 f'{border}\n\n</p>'
                 f'<p class="original_msg">[ORIGINAL MESSAGE]\n'
-                f'{e.message.message}\n\n</p>'
+                f'{html.escape(e.message.message)}\n\n</p>'
                 f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
-                f'{text}</p></article>')
-            e.message.message = message
+                f'{html.escape(text)}</p></article>')
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
                 try:
