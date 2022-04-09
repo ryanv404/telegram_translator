@@ -44,8 +44,8 @@ if not input_channels_entities:
     logger.error(f"Could not find any input channels in the user's dialogs")
     # sys.exit(1)
 
-num_output_channels = len(output_channel_entities)
-print(f"[Telethon] Listening to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
+num_input_channels = len(input_channels_entities)
+print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
 
 # Listen for new messages
 @client.on(events.NewMessage)
