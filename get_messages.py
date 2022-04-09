@@ -2,6 +2,7 @@
 # for some reason a link to t.me/opersvodki/3051 was inserted at the '4'
 
 from telethon import TelegramClient
+from telethon.tl.functions.messages import GetHistoryRequest
 from googletrans import Translator
 import yaml
 
@@ -18,9 +19,22 @@ client.start()
 translator = Translator()
 
 # Get messages
-message_num = 1
 channel_username = 'opersvodki'
-for message in client.get_messages(channel_username, limit=3):
+channel_entity = client.get_entity(channel_username)
+
+posts = client(GetHistoryRequest(
+    peer=channel_entity,
+    limit=10,
+    offset_date=None,
+    offset_id=0,
+    max_id=0,
+    min_id=0,
+    add_offset=0,
+    hash=0))
+
+# Messages stored in `posts.messages`
+message_num = 1
+for message in posts.messages:
     print(f'MESSAGE NUMBER {message_num}:')
     print(message.message)
     message_num += 1
