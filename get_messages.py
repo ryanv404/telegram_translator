@@ -36,7 +36,7 @@ posts = client(GetHistoryRequest(
 message_num = 1
 for message in posts.messages:
     print(f'MESSAGE NUMBER {message_num}:')
-    print(message.message)
+    print(message)
     message_num += 1
 
 # Translate with Google Translator (source language is auto-detected; output language is English)
