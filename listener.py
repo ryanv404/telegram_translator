@@ -54,7 +54,7 @@ async def handler(e):
     content = translator.translate(e.message.message)
 
     if content.text:
-        text = content.text
+        translation = content.text
         chat = await e.get_chat()
         chat_name = get_chat_name(chat)
         if chat.username:
@@ -63,24 +63,49 @@ async def handler(e):
             link = f't.me/c/{chat.id}'
 
         # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
-        text = text.replace('Anxiety!', 'Alert!')
+        translated_msg = translation.replace('Anxiety!', 'Alert!')
         
+        # Escape input text since using html parsing
         message_id = e.id
         flag = get_flag(content.src)
-
-        # Escape input text since using html parsing
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
         message = (
-            f'<article><p class="title">{border}\n'
+            f'<p><p>{border}\n'
             f'<b>{html.escape(chat_name)}</b>\n'
             f'{border}\n\n</p>'
-            f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
-            f'{html.escape(text)}\n\n</p>'
-            f'<p class="footer">{border}\n'
+            f'<p>[TRANSLATED MESSAGE]\n'
+            f'{html.escape(translated_msg)}\n\n</p>'
+            f'<p>{border}\n'
             f'ORIGINAL LANGUAGE: {flag}\n'
-            f'{link}/{message_id} ↩</p></article>') 
+            f'{link}/{message_id} ↩</p></p>') 
 
-        if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
+        # Message length limit is 4,096 characters; must trim longer messages or they cannot be sent
+        if len(message) >= 4096:
+            formatting_chars_len = len(
+                f'<p><p>{border}\n' + 
+                f'<b></b>\n' + 
+                f'{border}\n\n</p>' + 
+                f'<p>[TRANSLATED MESSAGE]\n' + 
+                f'\n\n</p>' + 
+                f'<p>{border}\n' + 
+                f'ORIGINAL LANGUAGE: {flag}\n' + 
+                f'/ ↩</p></p>')
+            
+            # Subtract 3 for ellipsis; set max length to 4050 as buffer
+            desired_msg_len = 4050 - (formatting_chars_len + len(link) + len(str(message_id)) + len(html.escape(chat_name))) - 3
+            translated_msg = f'{translated_msg[0:desired_msg_len]}...'
+            message = (
+                f'<p><p>{border}\n'
+                f'<b>{html.escape(chat_name)}</b>\n'
+                f'{border}\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(translated_msg)}\n\n</p>'
+                f'<p>{border}\n'
+                f'ORIGINAL LANGUAGE: {flag}\n'
+                f'{link}/{message_id} ↩</p></p>') 
+
+
+        if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
                 await client.send_message(config['aggregator_channel'], message, link_preview=False, parse_mode='html')
             except Exception as exc:
@@ -103,18 +128,21 @@ async def handler(e):
                 link = f't.me/c/{chat.id}'
             
             message_id = e.id
+
+            # Message length limit is 4,096 characters
+            untranslated_msg = e.message.message
             
             # Escape input text since using html parsing
             border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
             message = (
-                f'<article><p class="header">{link}/{message_id} ↩\n\n'
+                f'<p><p>{link}/{message_id} ↩\n\n'
                 f'{border}\n'
-                f'<p class="title"><b>{html.escape(chat.title)}</b>\n</p>'
+                f'<p><b>{chat.title}</b>\n</p>'
                 f'{border}\n\n</p>'
-                f'<p class="original_msg">[ORIGINAL MESSAGE]\n'
+                f'<p>[ORIGINAL MESSAGE]\n'
                 f'{html.escape(e.message.message)}\n\n</p>'
-                f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
-                f'{html.escape(text)}</p></article>')
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(text)}</p></p>')
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
                 try:
