@@ -4,7 +4,6 @@ from googletrans import Translator
 from switches import get_chat_name, get_flag
 import logging
 import yaml
-import os
 import re
 
 # Logging as per docs
@@ -13,12 +12,6 @@ logging.getLogger('telethon').setLevel(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Set config values
-api_id = os.environ.get('api_id')
-api_hash = os.environ.get('api_hash')
-phone = os.environ.get('phone')
-username = os.environ.get('username')
-channel_link = os.environ.get('channel_link')
-
 with open('config.yml', 'rb') as f:
     config = yaml.safe_load(f)
 
@@ -76,13 +69,14 @@ async def handler(e):
         flag = get_flag(content.src)
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
         message = (
-            f'<article><p>{border}\n</p>'
-            f'<p><b>{chat_name}</b>\n</p>'
-            f'<p>ORIGINAL LANGUAGE: {flag}\n</p>'
-            f'<p>{link}/{message_id} ↩\n</p>' 
-            f'<p>{border}\n\n</p>'
-            f'<p><u>[TRANSLATED MESSAGE]</u>\n</p>'
-            f'<p>{text}</p></article>')
+            f'<article><p class="title">{border}\n'
+            f'<b>{chat_name}</b>\n'
+            f'{border}\n\n</p>'
+            f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
+            f'{text}\n\n</p>'
+            f'<p class="footer">{border}\n'
+            f'ORIGINAL LANGUAGE: {flag}\n'
+            f'{link}/{message_id} ↩</p></article>') 
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
@@ -110,14 +104,14 @@ async def handler(e):
             message_id = e.id
             border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
             message = (
-                f'<article><p>{link}/{message_id} ↩\n\n</p>'
-                f'<p>{border}\n</p>'
-                f'<p><b>{chat.title}</b>\n</p>'
-                f'<p>{border}\n\n</p>'
-                f'<p><u>[ORIGINAL MESSAGE]</u>\n</p>'
-                f'<p>{e.message.message}\n\n</p>'
-                f'<p><u>[TRANSLATED MESSAGE]</u>\n</p>'
-                f'<p>{text}</p></article>')
+                f'<article><p class="header">{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p class="title"><b>{chat.title}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p class="original_msg">[ORIGINAL MESSAGE]\n'
+                f'{e.message.message}\n\n</p>'
+                f'<p class="translated_msg">[TRANSLATED MESSAGE]\n'
+                f'{text}</p></article>')
             e.message.message = message
             
             if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'ryan_v404', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
