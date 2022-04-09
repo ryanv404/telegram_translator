@@ -141,8 +141,8 @@ async def handler(e):
                 f'<p>[TRANSLATED MESSAGE]\n'
                 f'{html.escape(translation)}</p></p>')
 
-            # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
-            if len(message) >= 3980:
+            # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
+            if len(message) >= 1024:
                 formatting_chars_len = len(
                     f'<p><p>{link}/{message_id} ↩\n\n'
                     f'{border}\n'
@@ -153,8 +153,8 @@ async def handler(e):
                     f'<p>[TRANSLATED MESSAGE]\n'
                     f'</p></p>')
                 
-                # Subtract 6 for ellipses
-                desired_msg_len = (3980 - formatting_chars_len - 6) // 2
+                # Subtract 6 for ellipses; 
+                desired_msg_len = (1024 - formatting_chars_len - 6) // 2
 
                 translated_msg = f'{translation[0:desired_msg_len]}...'
                 untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
@@ -174,6 +174,7 @@ async def handler(e):
                 except Exception as exc:
                     print('[Telethon] Error while forwarding video message!')
                     print(exc)
+                    print(e.message)
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
