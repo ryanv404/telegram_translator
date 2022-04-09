@@ -76,7 +76,7 @@ async def handler(e):
             f'<p>[TRANSLATED MESSAGE]\n'
             f'{html.escape(translated_msg)}\n\n</p>'
             f'<p>{border}\n'
-            f'ORIGINAL LANGUAGE: {flag}\n'
+            f'ORIGINAL LANGUAGE: {flag}\n\n'
             f'{link}/{message_id} ↩</p></p>') 
 
         # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
@@ -88,7 +88,7 @@ async def handler(e):
                 f'<p>[TRANSLATED MESSAGE]\n' + 
                 f'\n\n</p>' + 
                 f'<p>{border}\n' + 
-                f'ORIGINAL LANGUAGE: {flag}\n' + 
+                f'ORIGINAL LANGUAGE: {flag}\n\n' + 
                 f'{link}/{message_id} ↩</p></p>')
             
             # Subtract 3 for ellipsis
@@ -101,7 +101,7 @@ async def handler(e):
                 f'<p>[TRANSLATED MESSAGE]\n'
                 f'{html.escape(translated_msg)}\n\n</p>'
                 f'<p>{border}\n'
-                f'ORIGINAL LANGUAGE: {flag}\n'
+                f'ORIGINAL LANGUAGE: {flag}\n\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
