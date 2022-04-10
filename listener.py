@@ -1,7 +1,8 @@
 from telethon import TelegramClient, events
 from telethon.tl.types import InputChannel
 from googletrans import Translator
-from switches import get_chat_name, get_flag
+from switches import get_chat_name
+from filter_results import eng_search_terms_present, ru_search_terms_present
 import logging
 import yaml
 import html
@@ -38,11 +39,9 @@ for d in client.iter_dialogs():
         
 if not output_channel_entities:
     logger.error(f"Could not find any output channels in the user's dialogs")
-    # sys.exit(1)
 
 if not input_channels_entities:
     logger.error(f"Could not find any input channels in the user's dialogs")
-    # sys.exit(1)
 
 num_input_channels = len(input_channels_entities)
 print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
@@ -67,7 +66,6 @@ async def handler(e):
         
         # Escape input text since using html parsing
         message_id = e.id
-        flag = get_flag(content.src)
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
         message = (
             f'<p><p>{border}\n'
@@ -75,8 +73,7 @@ async def handler(e):
             f'{border}\n\n</p>'
             f'<p>[TRANSLATED MESSAGE]\n'
             f'{html.escape(translated_msg)}\n\n</p>'
-            f'<p>{border}\n'
-            f'ORIGINAL LANGUAGE: {flag}\n\n'
+            f'<p>{border}\n\n'
             f'{link}/{message_id} ↩</p></p>') 
 
         # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
@@ -87,8 +84,7 @@ async def handler(e):
                 f'{border}\n\n</p>' + 
                 f'<p>[TRANSLATED MESSAGE]\n' + 
                 f'\n\n</p>' + 
-                f'<p>{border}\n' + 
-                f'ORIGINAL LANGUAGE: {flag}\n\n' + 
+                f'<p>{border}\n\n' + 
                 f'{link}/{message_id} ↩</p></p>')
             
             # Subtract 3 for ellipsis
@@ -100,23 +96,13 @@ async def handler(e):
                 f'{border}\n\n</p>'
                 f'<p>[TRANSLATED MESSAGE]\n'
                 f'{html.escape(translated_msg)}\n\n</p>'
-                f'<p>{border}\n'
-                f'ORIGINAL LANGUAGE: {flag}\n\n'
+                f'<p>{border}\n\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
         if chat.username not in ['shadedPineapple', 'filtration_camps', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
-            if re.search('.*filtration camp[s]?.*', message, flags=re.IGNORECASE): 
+            if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
                 try:
-                    message = (
-                    f'<p><p>{border}\n'
-                    f'<b>{html.escape(chat_name)}</b>\n'
-                    f'{border}\n\n</p>'
-                    f'<p>[TRANSLATED MESSAGE]\n'
-                    f'{html.escape(translated_msg)}\n\n</p>'
-                    f'<p>{border}\n'
-                    f'{link}/{message_id} ↩</p></p>') 
-
-                    await client.send_message(config['fc_channel'], message, link_preview=False, parse_mode='html')
+                    await client.send_message(config['filtered_channel'], message, link_preview=False, parse_mode='html')
             
                 except Exception as exc:
                     print('[Telethon] Error while sending fc message!')
