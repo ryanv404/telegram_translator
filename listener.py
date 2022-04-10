@@ -104,12 +104,22 @@ async def handler(e):
                 f'ORIGINAL LANGUAGE: {flag}\n\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
+        if chat.username not in ['shadedPineapple', 'filtration_camps'] and re.search('.*filtration camp[s]?.*', message, flags=re.IGNORECASE): 
+            try:
+                await client.send_message(config['fc_channel'], message, link_preview=False, parse_mode='html')
+        
+            except Exception as exc:
+                print('[Telethon] Error while sending fc message!')
+                print(exc)
+
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
                 await client.send_message(config['aggregator_channel'], message, link_preview=False, parse_mode='html')
+        
             except Exception as exc:
                 print('[Telethon] Error while sending message!')
                 print(exc)
+        
 
 # Listen for new video messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
