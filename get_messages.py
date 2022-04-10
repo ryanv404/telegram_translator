@@ -31,7 +31,7 @@ offset_id = 0
 limit = 100
 all_messages = []
 total_messages = 0
-total_count_limit = 20
+total_count_limit = 0
 
 while True:
     print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
@@ -61,12 +61,15 @@ while True:
 
 print(f'There are {total_messages} total messages found.')
 
-# Print out 3 messages
-if total_messages >= 3:
-    for message in all_messages[0:3]:
-        print('')
-        for k, v in message.items():
-            print(f'{k}: {v}')
+count = 1
+if total_messages >= 1:
+    for message in all_messages:
+        if re.search('.*filtration camp[s]?.*', message.message, re.IGNORECASE):
+            print('')
+            print(message.message)
+            count += 1
+
+print(f'{count} messages matched "filtration camp(s)"')
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
