@@ -67,12 +67,16 @@ search_count = 0
 message_list = []
 for message in client.iter_messages('UkrRusWarNews'):
     total_count += 1
+    print(f'{int(total_count/61000 * 100)}%')
     if (type(message.message) is str) and (re.search('.*filtration camp[s]?.*', message.message, re.IGNORECASE)):
         search_count += 1
         print(search_count)
         message_list.append(message.message)
         
 print(f'{search_count} from {total_count} messages')
+with open('messages.txt', 'a', encoding='utf-8') as f:
+    for msg in message_list:
+        f.write(msg)
 
 # if total_messages >= 1:
 #     for message in all_messages:
