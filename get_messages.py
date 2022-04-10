@@ -1,11 +1,11 @@
-# t.me/opersvodki/3054
-# for some reason a link to t.me/opersvodki/3051 was inserted at the '4'
-
 from telethon import TelegramClient, sync
 from telethon.tl.functions.messages import GetHistoryRequest
-from googletrans import Translator
+# import asyncio
+from telethon.tl import functions, types
 import yaml
+import re
 
+# Set config values
 with open('config.yml', 'rb') as f:
     config = yaml.safe_load(f)
 
@@ -15,43 +15,57 @@ client = TelegramClient(config["session_name"], config["api_id"], config["api_ha
 # Connect client
 client.start()
 
-# Create a translator instance
-translator = Translator()
+# async def main():
+#     channel = await client.get_entity('CHANNEL USERNAME')
+#     messages = await client.get_messages(channel, limit= None) #pass your own args
 
-# Get messages
-channel_username = 'opersvodki'
-channel_entity = client.get_entity(channel_username)
+#     #then if you want to get all the messages text
+#     for x in messages:
+#         print(x.text) #return message.text
 
-posts = client(GetHistoryRequest(
-    peer=channel_entity,
-    limit=10,
-    offset_date=None,
-    offset_id=0,
-    max_id=0,
-    min_id=0,
-    add_offset=0,
-    hash=0))
 
-# Messages stored in `posts.messages`
-message_num = 1
-for message in posts.messages:
-    print(f'MESSAGE NUMBER {message_num}:')
-    print(message)
-    message_num += 1
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(main())
 
-# Translate with Google Translator (source language is auto-detected; output language is English)
-# content = translator.translate(e.message.message)
-# text = content.text
+offset_id = 0
+limit = 100
+all_messages = []
+total_messages = 0
+total_count_limit = 20
 
-# chat = await e.get_chat()
-# if chat.username:
-#     link = f't.me/{chat.username}'
-# else:
-#     link = f't.me/c/{chat.id}'
+while True:
+    print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
+    history = client(GetHistoryRequest(
+        peer="https://t.me/UkrRusWarNews",
+        offset_id=offset_id,
+        offset_date=None,
+        add_offset=0,
+        limit=limit,
+        max_id=0,
+        min_id=0,
+        hash=0
+    ))
 
-# message_id = e.id
-# border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-# message = f'{link}/{message_id} ↩\n\n{border}\n{chat.title}\n{border}\n\n[ORIGINAL MESSAGE]\n{e.message.message}\n\n[TRANSLATED MESSAGE]\n{text}'
+    if not history.messages:
+        break
+    
+    messages = history.messages
+    for message in messages:
+        all_messages.append(message.to_dict())
+    
+    offset_id = messages[len(messages) - 1].id
+    
+    total_messages = len(all_messages)
+    if total_count_limit != 0 and total_messages >= total_count_limit:
+        break
+
+print(f'There are {total_messages} total messages found.')
+
+# Print out 3 messages
+if total_messages >= 3:
+    for message in all_messages[0:3]:
+        print('')
+        print(message)
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
