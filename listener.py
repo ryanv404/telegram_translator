@@ -104,22 +104,23 @@ async def handler(e):
                 f'ORIGINAL LANGUAGE: {flag}\n\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
-        if chat.username not in ['shadedPineapple', 'filtration_camps'] and re.search('.*filtration camp[s]?.*', message, flags=re.IGNORECASE): 
-            try:
-                message = (
-                f'<p><p>{border}\n'
-                f'<b>{html.escape(chat_name)}</b>\n'
-                f'{border}\n\n</p>'
-                f'<p>[TRANSLATED MESSAGE]\n'
-                f'{html.escape(translated_msg)}\n\n</p>'
-                f'<p>{border}\n'
-                f'{link}/{message_id} ↩</p></p>') 
+        if chat.username not in ['shadedPineapple', 'filtration_camps', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
+            if re.search('.*filtration camp[s]?.*', message, flags=re.IGNORECASE): 
+                try:
+                    message = (
+                    f'<p><p>{border}\n'
+                    f'<b>{html.escape(chat_name)}</b>\n'
+                    f'{border}\n\n</p>'
+                    f'<p>[TRANSLATED MESSAGE]\n'
+                    f'{html.escape(translated_msg)}\n\n</p>'
+                    f'<p>{border}\n'
+                    f'{link}/{message_id} ↩</p></p>') 
 
-                await client.send_message(config['fc_channel'], message, link_preview=False, parse_mode='html')
-        
-            except Exception as exc:
-                print('[Telethon] Error while sending fc message!')
-                print(exc)
+                    await client.send_message(config['fc_channel'], message, link_preview=False, parse_mode='html')
+            
+                except Exception as exc:
+                    print('[Telethon] Error while sending fc message!')
+                    print(exc)
 
         if chat.username not in ['shadedPineapple', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
