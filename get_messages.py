@@ -65,7 +65,8 @@ print(f'There are {total_messages} total messages found.')
 if total_messages >= 3:
     for message in all_messages[0:3]:
         print('')
-        print(message)
+        for k, v in message.items():
+            print(f'{k}: {v}')
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
