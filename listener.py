@@ -106,6 +106,7 @@ async def handler(e):
                 f'<p>{border}\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
+        print(e)
         if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
             if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
                 try:
