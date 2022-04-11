@@ -75,14 +75,21 @@ async def handler(e):
     # Escape input text since using html parsing
     message_id = e.id
     border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-    message = (
-        f'<p><p>{border}\n'
-        f'<b>{html.escape(chat_name)}</b>\n'
-        f'{border}\n\n</p>'
-        f'<p>[TRANSLATED MESSAGE]\n'
-        f'{html.escape(translated_msg)}\n\n</p>'
-        f'<p>{border}\n'
-        f'{link}/{message_id} ↩</p></p>') 
+    if translation:
+        message = (
+            f'<p><p>{border}\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
+            f'{border}\n\n</p>'
+            f'<p>[TRANSLATED MESSAGE]\n'
+            f'{html.escape(translated_msg)}\n\n</p>'
+            f'<p>{border}\n'
+            f'{link}/{message_id} ↩</p></p>') 
+    else:
+        message = (
+            f'<p>{border}\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
+            f'{border}\n\n'
+            f'{link}/{message_id} ↩</p>') 
 
     # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
     if len(message) >= 3980:
@@ -133,6 +140,7 @@ async def handler(e):
             translation = ''
         
         chat = await e.get_chat()
+        chat_name = get_chat_name(chat)
 
         if chat.username:
             link = f't.me/{chat.username}'
@@ -144,22 +152,29 @@ async def handler(e):
         # Escape input text since using html parsing
         untranslated_msg = e.message.message
         border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-        message = (
-            f'<p><p>{link}/{message_id} ↩\n\n'
-            f'{border}\n'
-            f'<p><b>{chat.title}</b>\n</p>'
-            f'{border}\n\n</p>'
-            f'<p>[ORIGINAL MESSAGE]\n'
-            f'{html.escape(untranslated_msg)}\n\n</p>'
-            f'<p>[TRANSLATED MESSAGE]\n'
-            f'{html.escape(translation)}</p></p>')
+        if translation:
+            message = (
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'{html.escape(untranslated_msg)}\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(translation)}</p></p>')
+        else:
+            message = (
+                f'<p>{link}/{message_id} ↩\n\n' 
+                f'{border}\n'
+                f'<b>{html.escape(chat_name)}</b>\n'
+                f'{border}</p>')
 
         # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
         if len(message) >= 1024:
             formatting_chars_len = len(
                 f'<p><p>{link}/{message_id} ↩\n\n'
                 f'{border}\n'
-                f'<p><b>{chat.title}</b>\n</p>'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
                 f'{border}\n\n</p>'
                 f'<p>[ORIGINAL MESSAGE]\n'
                 f'\n\n</p>'
@@ -173,7 +188,7 @@ async def handler(e):
             message = (
                 f'<p><p>{link}/{message_id} ↩\n\n'
                 f'{border}\n'
-                f'<p><b>{chat.title}</b>\n</p>'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
                 f'{border}\n\n</p>'
                 f'<p>[ORIGINAL MESSAGE]\n'
                 f'{html.escape(untranslated_msg)}\n\n</p>'
@@ -191,6 +206,8 @@ async def handler(e):
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'photo')))
 async def handler(e):
     chat = await e.get_chat()
+    chat_name = get_chat_name(chat)
+
     if chat.username:
         link = f't.me/{chat.username}'
     else:
@@ -202,8 +219,8 @@ async def handler(e):
     message = (
         f'<p>{link}/{message_id} ↩\n\n'
         f'{border}\n</p>'
-        f'<b>{chat.title}</b>\n'
-        f'{border}\n\n</p>')
+        f'<b>{chat_name}</b>\n'
+        f'{border}</p>')
 
     try:
         await client.send_message(photo_channel, message, parse_mode='html', file=e.media, link_preview=False)
