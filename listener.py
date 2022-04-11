@@ -39,7 +39,6 @@ for d in client.iter_dialogs():
         
 if not output_channel_entities:
     logger.error(f"[Telethon] Could not find any output channels in the user's dialogs")
-
 if not input_channels_entities:
     logger.error(f"[Telethon] Could not find any input channels in the user's dialogs")
 
@@ -58,22 +57,47 @@ photo_channel = config['output_channel_ids'][3]
 async def handler(e):
     # Translate with Google Translator (source language is auto-detected; output language is English)
     content = translator.translate(e.message.message)
-
     if content.text:
         translation = content.text
-        chat = await e.get_chat()
-        chat_name = get_chat_name(chat)
-        if chat.username:
-            link = f't.me/{chat.username}'
-        else:
-            link = f't.me/c/{chat.id}'
+    else:
+        translation = ''
 
-        # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
-        translated_msg = translation.replace('Anxiety!', 'Alert!')
+    chat = await e.get_chat()
+    chat_name = get_chat_name(chat)
+    if chat.username:
+        link = f't.me/{chat.username}'
+    else:
+        link = f't.me/c/{chat.id}'
+
+    # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
+    translated_msg = translation.replace('Anxiety!', 'Alert!')
+    
+    # Escape input text since using html parsing
+    message_id = e.id
+    border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+    message = (
+        f'<p><p>{border}\n'
+        f'<b>{html.escape(chat_name)}</b>\n'
+        f'{border}\n\n</p>'
+        f'<p>[TRANSLATED MESSAGE]\n'
+        f'{html.escape(translated_msg)}\n\n</p>'
+        f'<p>{border}\n'
+        f'{link}/{message_id} ↩</p></p>') 
+
+    # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
+    if len(message) >= 3980:
+        formatting_chars_len = len(
+            f'<p><p>{border}\n' + 
+            f'<b>{html.escape(chat_name)}</b>\n' + 
+            f'{border}\n\n</p>' + 
+            f'<p>[TRANSLATED MESSAGE]\n' + 
+            f'\n\n</p>' + 
+            f'<p>{border}\n' + 
+            f'{link}/{message_id} ↩</p></p>')
         
-        # Escape input text since using html parsing
-        message_id = e.id
-        border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+        # Subtract 3 for ellipsis
+        desired_msg_len = 3980 - formatting_chars_len - 3
+        translated_msg = f'{translated_msg[0:desired_msg_len]}...'
         message = (
             f'<p><p>{border}\n'
             f'<b>{html.escape(chat_name)}</b>\n'
@@ -83,47 +107,19 @@ async def handler(e):
             f'<p>{border}\n'
             f'{link}/{message_id} ↩</p></p>') 
 
-        # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
-        if len(message) >= 3980:
-            formatting_chars_len = len(
-                f'<p><p>{border}\n' + 
-                f'<b>{html.escape(chat_name)}</b>\n' + 
-                f'{border}\n\n</p>' + 
-                f'<p>[TRANSLATED MESSAGE]\n' + 
-                f'\n\n</p>' + 
-                f'<p>{border}\n' + 
-                f'{link}/{message_id} ↩</p></p>')
-            
-            # Subtract 3 for ellipsis
-            desired_msg_len = 3980 - formatting_chars_len - 3
-            translated_msg = f'{translated_msg[0:desired_msg_len]}...'
-            message = (
-                f'<p><p>{border}\n'
-                f'<b>{html.escape(chat_name)}</b>\n'
-                f'{border}\n\n</p>'
-                f'<p>[TRANSLATED MESSAGE]\n'
-                f'{html.escape(translated_msg)}\n\n</p>'
-                f'<p>{border}\n'
-                f'{link}/{message_id} ↩</p></p>') 
-
-        print(e.media)
-        if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
-            if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
-                try:
-                    await client.send_message(search_channel, message, link_preview=False, parse_mode='html')
-            
-                except Exception as exc:
-                    print('[Telethon] Error while sending fc message!')
-                    print(exc)
-
-        if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ryan_test_channel', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
+    if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
+        if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
             try:
-                await client.send_message(war_news_channel, message, link_preview=False, parse_mode='html')
-        
+                await client.send_message(search_channel, message, link_preview=False, parse_mode='html')
             except Exception as exc:
-                print('[Telethon] Error while sending message!')
+                print('[Telethon] Error while sending fc message!')
                 print(exc)
         
+        try:
+            await client.send_message(war_news_channel, message, link_preview=False, parse_mode='html')
+        except Exception as exc:
+            print('[Telethon] Error while sending message!')
+            print(exc)
 
 # Listen for new video messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
@@ -133,18 +129,47 @@ async def handler(e):
         content = translator.translate(e.message.message)
         if content.text:
             translation = content.text
-            chat = await e.get_chat()
+        else:
+            translation = ''
+        
+        chat = await e.get_chat()
 
-            if chat.username:
-                link = f't.me/{chat.username}'
-            else:
-                link = f't.me/c/{chat.id}'
+        if chat.username:
+            link = f't.me/{chat.username}'
+        else:
+            link = f't.me/c/{chat.id}'
+        
+        message_id = e.id
+
+        # Escape input text since using html parsing
+        untranslated_msg = e.message.message
+        border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+        message = (
+            f'<p><p>{link}/{message_id} ↩\n\n'
+            f'{border}\n'
+            f'<p><b>{chat.title}</b>\n</p>'
+            f'{border}\n\n</p>'
+            f'<p>[ORIGINAL MESSAGE]\n'
+            f'{html.escape(untranslated_msg)}\n\n</p>'
+            f'<p>[TRANSLATED MESSAGE]\n'
+            f'{html.escape(translation)}</p></p>')
+
+        # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
+        if len(message) >= 1024:
+            formatting_chars_len = len(
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{chat.title}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'</p></p>')
             
-            message_id = e.id
-
-            # Escape input text since using html parsing
-            untranslated_msg = e.message.message
-            border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+            # Subtract 6 for ellipses; 
+            desired_msg_len = (1024 - formatting_chars_len - 6) // 2
+            translated_msg = f'{translation[0:desired_msg_len]}...'
+            untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
             message = (
                 f'<p><p>{link}/{message_id} ↩\n\n'
                 f'{border}\n'
@@ -153,107 +178,39 @@ async def handler(e):
                 f'<p>[ORIGINAL MESSAGE]\n'
                 f'{html.escape(untranslated_msg)}\n\n</p>'
                 f'<p>[TRANSLATED MESSAGE]\n'
-                f'{html.escape(translation)}</p></p>')
-
-            # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
-            if len(message) >= 1024:
-                formatting_chars_len = len(
-                    f'<p><p>{link}/{message_id} ↩\n\n'
-                    f'{border}\n'
-                    f'<p><b>{chat.title}</b>\n</p>'
-                    f'{border}\n\n</p>'
-                    f'<p>[ORIGINAL MESSAGE]\n'
-                    f'\n\n</p>'
-                    f'<p>[TRANSLATED MESSAGE]\n'
-                    f'</p></p>')
-                
-                # Subtract 6 for ellipses; 
-                desired_msg_len = (1024 - formatting_chars_len - 6) // 2
-
-                translated_msg = f'{translation[0:desired_msg_len]}...'
-                untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
-                message = (
-                    f'<p><p>{link}/{message_id} ↩\n\n'
-                    f'{border}\n'
-                    f'<p><b>{chat.title}</b>\n</p>'
-                    f'{border}\n\n</p>'
-                    f'<p>[ORIGINAL MESSAGE]\n'
-                    f'{html.escape(untranslated_msg)}\n\n</p>'
-                    f'<p>[TRANSLATED MESSAGE]\n'
-                    f'{html.escape(translated_msg)}</p></p>')
-                
-            if chat.username not in ['photo_posts', 'video_posts', 'my_search_results', 'shadedPineapple', 'ryan_test_channel', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
-                try:
-                    await client.send_message(video_channel, message, parse_mode='html', file=e.media, link_preview=False)
-                except Exception as exc:
-                    print('[Telethon] Error while forwarding video message!')
-                    print(exc)
-                    print(e.message)
+                f'{html.escape(translated_msg)}</p></p>')
+            
+        try:
+            await client.send_message(video_channel, message, parse_mode='html', file=e.media, link_preview=False)
+        except Exception as exc:
+            print('[Telethon] Error while forwarding video message!')
+            print(exc)
+            print(e.message)
 
 # Listen for new photo messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'photo')))
 async def handler(e):
-    photo = e.message.media.photo
-    if hasattr(photo, 'mime_type') and bool(re.search('photo', photo.mime_type)):
-        content = translator.translate(e.message.message)
-        if content.text:
-            translation = content.text
-            chat = await e.get_chat()
+    chat = await e.get_chat()
+    if chat.username:
+        link = f't.me/{chat.username}'
+    else:
+        link = f't.me/c/{chat.id}'
+    
+    message_id = e.id
 
-            if chat.username:
-                link = f't.me/{chat.username}'
-            else:
-                link = f't.me/c/{chat.id}'
-            
-            message_id = e.id
+    border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+    message = (
+        f'<p>{link}/{message_id} ↩\n\n'
+        f'{border}\n</p>'
+        f'<b>{chat.title}</b>\n'
+        f'{border}\n\n</p>')
 
-            # Escape input text since using html parsing
-            untranslated_msg = e.message.message
-            border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-            message = (
-                f'<p><p>{link}/{message_id} ↩\n\n'
-                f'{border}\n'
-                f'<p><b>{chat.title}</b>\n</p>'
-                f'{border}\n\n</p>'
-                f'<p>[ORIGINAL MESSAGE]\n'
-                f'{html.escape(untranslated_msg)}\n\n</p>'
-                f'<p>[TRANSLATED MESSAGE]\n'
-                f'{html.escape(translation)}</p></p>')
-
-            # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
-            if len(message) >= 1024:
-                formatting_chars_len = len(
-                    f'<p><p>{link}/{message_id} ↩\n\n'
-                    f'{border}\n'
-                    f'<p><b>{chat.title}</b>\n</p>'
-                    f'{border}\n\n</p>'
-                    f'<p>[ORIGINAL MESSAGE]\n'
-                    f'\n\n</p>'
-                    f'<p>[TRANSLATED MESSAGE]\n'
-                    f'</p></p>')
-                
-                # Subtract 6 for ellipses; 
-                desired_msg_len = (1024 - formatting_chars_len - 6) // 2
-
-                translated_msg = f'{translation[0:desired_msg_len]}...'
-                untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
-                message = (
-                    f'<p><p>{link}/{message_id} ↩\n\n'
-                    f'{border}\n'
-                    f'<p><b>{chat.title}</b>\n</p>'
-                    f'{border}\n\n</p>'
-                    f'<p>[ORIGINAL MESSAGE]\n'
-                    f'{html.escape(untranslated_msg)}\n\n</p>'
-                    f'<p>[TRANSLATED MESSAGE]\n'
-                    f'{html.escape(translated_msg)}</p></p>')
-                
-            if chat.username not in ['photo_posts', 'video_posts', 'my_search_results', 'shadedPineapple', 'ryan_test_channel', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
-                try:
-                    await client.send_message(photo_channel, message, parse_mode='html', file=e.media, link_preview=False)
-                except Exception as exc:
-                    print('[Telethon] Error while forwarding video message!')
-                    print(exc)
-                    print(e.message)
+    try:
+        await client.send_message(photo_channel, message, parse_mode='html', file=e.media, link_preview=False)
+    except Exception as exc:
+        print('[Telethon] Error while forwarding video message!')
+        print(exc)
+        print(e.message)
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
