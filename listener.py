@@ -38,13 +38,14 @@ for d in client.iter_dialogs():
         output_channel_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
         
 if not output_channel_entities:
-    logger.error(f"Could not find any output channels in the user's dialogs")
+    logger.error(f"[Telethon] Could not find any output channels in the user's dialogs")
 
 if not input_channels_entities:
-    logger.error(f"Could not find any input channels in the user's dialogs")
+    logger.error(f"[Telethon] Could not find any input channels in the user's dialogs")
 
 num_input_channels = len(input_channels_entities)
-print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
+num_output_channels = len(output_channel_entities)
+print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_channels == 1 else 'channels'}. Forwarding messages to {len(num_output_channels)} {'channel' if num_output_channels == 1 else 'channels'}...")
 
 # Output channels
 war_news_channel = config['output_channel_ids'][0]
