@@ -81,6 +81,7 @@ output_channel_names:
   - "ukr_rus_war_news"
   - "video_posts"
   - "my_search_results"
+  - "photo_posts"
 
 # Obtain a channel's ID by forwarding any message from it to @userinfobot and remove the '-100' from the beginning of the ID.
 # Do not use quotes for channel ID's.
@@ -155,3 +156,4 @@ output_channel_ids:
   - 1712562312
   - 1556049685
   - 1595141006
+  - 1712665624
