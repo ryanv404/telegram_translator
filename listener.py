@@ -33,9 +33,9 @@ my_channels_entities = []
 output_channel_entities = []
 
 for d in client.iter_dialogs():
-    if d.name in config["input_channel_names"] or d.entity.id in config["input_channel_ids"]:
+    if d.name in config["input_channel_names"] or d.entity.id in config["input_channel_ids"] or d.entity.id in config["my_channel_ids"]:
         input_channels_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
-    if d.name in config["my_input_channels"]:
+    if d.name in config["my_input_channels"] or d.entity.id in config["my_channel_ids"]:
         my_channels_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
     if d.name in config["output_channel_names"] or d.entity.id in config["output_channel_ids"]:
         output_channel_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
