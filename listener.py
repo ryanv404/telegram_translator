@@ -99,14 +99,14 @@ async def handler(e):
                 f'<p>{border}\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
-        if chat.username not in ['shadedPineapple', 'dhou_search_results', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
-            if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
-                try:
-                    await client.send_message(config['filtered_channel'], message, link_preview=False, parse_mode='html')
+        # if chat.username not in ['shadedPineapple', 'dhou_search_results', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
+        #     if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
+        #         try:
+        #             await client.send_message(config['filtered_channel'], message, link_preview=False, parse_mode='html')
             
-                except Exception as exc:
-                    print('[Telethon] Error while sending fc message!')
-                    print(exc)
+        #         except Exception as exc:
+        #             print('[Telethon] Error while sending fc message!')
+        #             print(exc)
 
         if chat.username not in ['shadedPineapple', 'dhou_search_results', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
             try:
