@@ -7,7 +7,6 @@ import logging
 import yaml
 import html
 import re
-import pprint
 
 # Logging as per docs
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.WARNING)
@@ -107,7 +106,7 @@ async def handler(e):
                 f'<p>{border}\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
-        pprint.pp(e.media)
+        print(e.media)
         if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
             if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
                 try:
@@ -194,8 +193,8 @@ async def handler(e):
 # Listen for new photo messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'photo')))
 async def handler(e):
-    video = e.message.media.document
-    if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
+    photo = e.message.media.photo
+    if hasattr(photo, 'mime_type') and bool(re.search('photo', photo.mime_type)):
         content = translator.translate(e.message.message)
         if content.text:
             translation = content.text
