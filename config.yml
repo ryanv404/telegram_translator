@@ -75,6 +75,28 @@ input_channel_names:
   - "warwebm"
   - "z_kharkovnash"
 
+my_input_channels:
+  - "KyivPolitics"
+  - "UkraineNow"
+  - "OpenUkraine"
+  - "pidrozdil4308"
+  - "uniannet"
+  - "voynareal"
+  - "uaobozrevatel"
+  - "truexanewsua"
+  - "+Vr7jp2QumzJkODFi"
+  - "mariupolnow"
+  - "nexta_live"
+  - "mvs_ukraine"
+  - "mykolaivskaODA"
+  - "UkrWarRep"
+  - "a_shtirlitz"
+  - "KharkivPolitics"
+  - "Podolyak_M"
+  - "UkraineN"
+  - "dvish_alive"
+  - "milinfolive"
+
 # The output channel names that the messages will be forwarded to.
 # The Telegram account running the program must be an administrator for the output channel(s) and have a dialog open with the channel(s) in their feed.
 output_channel_names:

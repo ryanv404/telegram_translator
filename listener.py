@@ -29,11 +29,14 @@ translator = Translator()
 
 # Get input and output entities for video listener
 input_channels_entities = []
+my_channels_entities = []
 output_channel_entities = []
 
 for d in client.iter_dialogs():
     if d.name in config["input_channel_names"] or d.entity.id in config["input_channel_ids"]:
         input_channels_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
+    if d.name in config["my_input_channels"]:
+        my_channels_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
     if d.name in config["output_channel_names"] or d.entity.id in config["output_channel_ids"]:
         output_channel_entities.append(InputChannel(d.entity.id, d.entity.access_hash))
         
@@ -52,7 +55,76 @@ video_channel = config['output_channel_ids'][1]
 search_channel = config['output_channel_ids'][2]
 photo_channel = config['output_channel_ids'][3]
 
-# Listen for new messages
+# Listen for new messages from my preferred channels
+@client.on(events.NewMessage(chats=my_channels_entities))
+async def handler(e):
+    # Translate with Google Translator (source language is auto-detected; output language is English)
+    content = translator.translate(e.message.message)
+    if content.text:
+        translation = content.text
+    else:
+        translation = ''
+
+    chat = await e.get_chat()
+    chat_name = get_chat_name(chat)
+    if chat.username:
+        link = f't.me/{chat.username}'
+    else:
+        link = f't.me/c/{chat.id}'
+
+    # Translator mistranslates 'Тривога!' as 'Anxiety' (in this context); change to 'Alert!'
+    translated_msg = translation.replace('Anxiety!', 'Alert!')
+    
+    # Escape input text since using html parsing
+    message_id = e.id
+    border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+    if translation:
+        message = (
+            f'<p><p>{border}\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
+            f'{border}\n\n</p>'
+            f'<p>[TRANSLATED MESSAGE]\n'
+            f'{html.escape(translated_msg)}\n\n</p>'
+            f'<p>{border}\n'
+            f'{link}/{message_id} ↩</p></p>') 
+    else:
+        message = (
+            f'<p>{border}\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
+            f'{border}\n\n'
+            f'{link}/{message_id} ↩</p>') 
+
+    # Message length limit appears to be around 3980 characters; must trim longer messages or they cannot be sent
+    if len(message) >= 3980:
+        formatting_chars_len = len(
+            f'<p><p>{border}\n' + 
+            f'<b>{html.escape(chat_name)}</b>\n' + 
+            f'{border}\n\n</p>' + 
+            f'<p>[TRANSLATED MESSAGE]\n' + 
+            f'\n\n</p>' + 
+            f'<p>{border}\n' + 
+            f'{link}/{message_id} ↩</p></p>')
+        
+        # Subtract 3 for ellipsis
+        desired_msg_len = 3980 - formatting_chars_len - 3
+        translated_msg = f'{translated_msg[0:desired_msg_len]}...'
+        message = (
+            f'<p><p>{border}\n'
+            f'<b>{html.escape(chat_name)}</b>\n'
+            f'{border}\n\n</p>'
+            f'<p>[TRANSLATED MESSAGE]\n'
+            f'{html.escape(translated_msg)}\n\n</p>'
+            f'<p>{border}\n'
+            f'{link}/{message_id} ↩</p></p>') 
+
+    if chat.username not in ['photo_posts', 'shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
+        try:
+            await client.send_message(war_news_channel, message, link_preview=False, parse_mode='html')
+        except Exception as exc:
+            print('[Telethon] Error while sending message!')
+            print(exc)
+
+# Listen for search terms
 @client.on(events.NewMessage)
 async def handler(e):
     # Translate with Google Translator (source language is auto-detected; output language is English)
@@ -121,12 +193,6 @@ async def handler(e):
             except Exception as exc:
                 print('[Telethon] Error while sending fc message!')
                 print(exc)
-        
-        try:
-            await client.send_message(war_news_channel, message, link_preview=False, parse_mode='html')
-        except Exception as exc:
-            print('[Telethon] Error while sending message!')
-            print(exc)
 
 # Listen for new video messages
 @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
