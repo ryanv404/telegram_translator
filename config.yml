@@ -2,8 +2,9 @@
 api_id: 18031383
 api_hash: "ca3e473a2237fdd835cb1f85fc419d6b"
 session_name: "ryan_v404"
-aggregator_channel: "https://t.me/UkrRusWarNews"
-filtered_channel: "https://t.me/dhou_search_results"
+aggregator_channel: "https://t.me/ukr_rus_war_news"
+video_channel: "https://t.me/video_posts"
+filtered_channel: "https://t.me/my_search_results"
 # api_id: 12622619
 # api_hash: "8b71b8c43075941645017b5e163b4971"
 # bot_token: "5266680121:AAFNZ-7Md81Og0nFkDZLMg-dosG0NOoY-SE"
@@ -80,7 +81,9 @@ input_channel_names:
 # The output channel names that the messages will be forwarded to.
 # The Telegram account running the program must be an administrator for the output channel(s) and have a dialog open with the channel(s) in their feed.
 output_channel_names:
-  - "telehunt_video"
+  - "ukr_rus_war_news"
+  - "video_posts"
+  - "my_search_results"
 
 # Obtain a channel's ID by forwarding any message from it to @userinfobot and remove the '-100' from the beginning of the ID.
 # Do not use quotes for channel ID's.
@@ -152,4 +155,6 @@ input_channel_ids:
   - 1621401381
 
 output_channel_ids:
-  - 1630951349
+  - 1712562312
+  - 1556049685
+  - 1595141006

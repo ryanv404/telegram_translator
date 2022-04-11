@@ -46,6 +46,11 @@ if not input_channels_entities:
 num_input_channels = len(input_channels_entities)
 print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_channels == 1 else 'channels'}. Forwarding messages to 2 channels...")
 
+# Output channels
+war_news_channel = config['output_channel_ids'][0]
+video_channel = config['output_channel_ids'][1]
+search_channel = config['output_channel_ids'][2]
+
 # Listen for new messages
 @client.on(events.NewMessage)
 async def handler(e):
@@ -99,18 +104,18 @@ async def handler(e):
                 f'<p>{border}\n'
                 f'{link}/{message_id} ↩</p></p>') 
 
-        # if chat.username not in ['shadedPineapple', 'dhou_search_results', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
-        #     if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
-        #         try:
-        #             await client.send_message(config['filtered_channel'], message, link_preview=False, parse_mode='html')
+        if chat.username not in ['shadedPineapple', 'my_search_results', 'video_posts', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
+            if eng_search_terms_present(translated_msg) or ru_search_terms_present(e.message.message): 
+                try:
+                    await client.send_message(search_channel, message, link_preview=False, parse_mode='html')
             
-        #         except Exception as exc:
-        #             print('[Telethon] Error while sending fc message!')
-        #             print(exc)
+                except Exception as exc:
+                    print('[Telethon] Error while sending fc message!')
+                    print(exc)
 
-        if chat.username not in ['shadedPineapple', 'dhou_search_results', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
+        if chat.username not in ['shadedPineapple', 'my_search_results', 'video_posts', 'ryan_test_channel', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
             try:
-                await client.send_message(config['aggregator_channel'], message, link_preview=False, parse_mode='html')
+                await client.send_message(war_news_channel, message, link_preview=False, parse_mode='html')
         
             except Exception as exc:
                 print('[Telethon] Error while sending message!')
@@ -118,69 +123,69 @@ async def handler(e):
         
 
 # Listen for new video messages
-# @client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
-# async def handler(e):
-#     video = e.message.media.document
-#     if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
-#         content = translator.translate(e.message.message)
-#         if content.text:
-#             translation = content.text
-#             chat = await e.get_chat()
+@client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
+async def handler(e):
+    video = e.message.media.document
+    if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
+        content = translator.translate(e.message.message)
+        if content.text:
+            translation = content.text
+            chat = await e.get_chat()
 
-#             if chat.username:
-#                 link = f't.me/{chat.username}'
-#             else:
-#                 link = f't.me/c/{chat.id}'
+            if chat.username:
+                link = f't.me/{chat.username}'
+            else:
+                link = f't.me/c/{chat.id}'
             
-#             message_id = e.id
+            message_id = e.id
 
-#             # Escape input text since using html parsing
-#             untranslated_msg = e.message.message
-#             border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
-#             message = (
-#                 f'<p><p>{link}/{message_id} ↩\n\n'
-#                 f'{border}\n'
-#                 f'<p><b>{chat.title}</b>\n</p>'
-#                 f'{border}\n\n</p>'
-#                 f'<p>[ORIGINAL MESSAGE]\n'
-#                 f'{html.escape(untranslated_msg)}\n\n</p>'
-#                 f'<p>[TRANSLATED MESSAGE]\n'
-#                 f'{html.escape(translation)}</p></p>')
+            # Escape input text since using html parsing
+            untranslated_msg = e.message.message
+            border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+            message = (
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{chat.title}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'{html.escape(untranslated_msg)}\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(translation)}</p></p>')
 
-#             # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
-#             if len(message) >= 1024:
-#                 formatting_chars_len = len(
-#                     f'<p><p>{link}/{message_id} ↩\n\n'
-#                     f'{border}\n'
-#                     f'<p><b>{chat.title}</b>\n</p>'
-#                     f'{border}\n\n</p>'
-#                     f'<p>[ORIGINAL MESSAGE]\n'
-#                     f'\n\n</p>'
-#                     f'<p>[TRANSLATED MESSAGE]\n'
-#                     f'</p></p>')
+            # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
+            if len(message) >= 1024:
+                formatting_chars_len = len(
+                    f'<p><p>{link}/{message_id} ↩\n\n'
+                    f'{border}\n'
+                    f'<p><b>{chat.title}</b>\n</p>'
+                    f'{border}\n\n</p>'
+                    f'<p>[ORIGINAL MESSAGE]\n'
+                    f'\n\n</p>'
+                    f'<p>[TRANSLATED MESSAGE]\n'
+                    f'</p></p>')
                 
-#                 # Subtract 6 for ellipses; 
-#                 desired_msg_len = (1024 - formatting_chars_len - 6) // 2
+                # Subtract 6 for ellipses; 
+                desired_msg_len = (1024 - formatting_chars_len - 6) // 2
 
-#                 translated_msg = f'{translation[0:desired_msg_len]}...'
-#                 untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
-#                 message = (
-#                     f'<p><p>{link}/{message_id} ↩\n\n'
-#                     f'{border}\n'
-#                     f'<p><b>{chat.title}</b>\n</p>'
-#                     f'{border}\n\n</p>'
-#                     f'<p>[ORIGINAL MESSAGE]\n'
-#                     f'{html.escape(untranslated_msg)}\n\n</p>'
-#                     f'<p>[TRANSLATED MESSAGE]\n'
-#                     f'{html.escape(translated_msg)}</p></p>')
+                translated_msg = f'{translation[0:desired_msg_len]}...'
+                untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
+                message = (
+                    f'<p><p>{link}/{message_id} ↩\n\n'
+                    f'{border}\n'
+                    f'<p><b>{chat.title}</b>\n</p>'
+                    f'{border}\n\n</p>'
+                    f'<p>[ORIGINAL MESSAGE]\n'
+                    f'{html.escape(untranslated_msg)}\n\n</p>'
+                    f'<p>[TRANSLATED MESSAGE]\n'
+                    f'{html.escape(translated_msg)}</p></p>')
                 
-#             if chat.username not in ['dhou_search_results', 'shadedPineapple', 'ryan_test_channel', 'UkrRusWarNews', 'telehunt_video', 'cyberbenb', 'Telegram']:
-#                 try:
-#                     await client.send_message(output_channel_entities[0], message, parse_mode='html', file=e.media, link_preview=False)
-#                 except Exception as exc:
-#                     print('[Telethon] Error while forwarding video message!')
-#                     print(exc)
-#                     print(e.message)
+            if chat.username not in ['video_posts', 'my_search_results', 'shadedPineapple', 'ryan_test_channel', 'ukr_rus_war_news', 'cyberbenb', 'Telegram']:
+                try:
+                    await client.send_message(video_channel, message, parse_mode='html', file=e.media, link_preview=False)
+                except Exception as exc:
+                    print('[Telethon] Error while forwarding video message!')
+                    print(exc)
+                    print(e.message)
 
 # Run client until a keyboard interrupt (ctrl+C)
 client.run_until_disconnected()
