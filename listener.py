@@ -1,4 +1,4 @@
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 from telethon.tl.types import InputChannel
 from googletrans import Translator
 from switches import get_chat_name
@@ -54,6 +54,7 @@ war_news_channel = config['output_channel_ids'][0]
 video_channel = config['output_channel_ids'][1]
 search_channel = config['output_channel_ids'][2]
 photo_channel = config['output_channel_ids'][3]
+buttons_channel = config['output_channel_ids'][4]
 
 # Listen for new messages from my preferred channels
 @client.on(events.NewMessage(chats=my_channels_entities))
@@ -265,6 +266,94 @@ async def handler(e):
             await client.send_message(video_channel, message, parse_mode='html', file=e.media, link_preview=False)
         except Exception as exc:
             print('[Telethon] Error while forwarding video message!')
+            print(exc)
+            print(e.message)
+
+# Send new video messages with buttons to monitoring channel
+@client.on(events.NewMessage(chats=input_channels_entities, func=lambda e: hasattr(e.media, 'document')))
+async def handler(e):
+    video = e.message.media.document
+    if hasattr(video, 'mime_type') and bool(re.search('video', video.mime_type)):
+        content = translator.translate(e.message.message)
+        if content.text:
+            translation = content.text
+        else:
+            translation = ''
+        
+        chat = await e.get_chat()
+        chat_name = get_chat_name(chat)
+
+        if chat.username:
+            link = f't.me/{chat.username}'
+        else:
+            link = f't.me/c/{chat.id}'
+        
+        message_id = e.id
+
+        # Escape input text since using html parsing
+        untranslated_msg = e.message.message
+        border = '~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~'
+        if translation:
+            message = (
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'{html.escape(untranslated_msg)}\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(translation)}</p></p>')
+        else:
+            message = (
+                f'<p>{link}/{message_id} ↩\n\n' 
+                f'{border}\n'
+                f'<b>{html.escape(chat_name)}</b>\n'
+                f'{border}</p>')
+
+        # Video message length limit appears to be around 1024 characters; must trim longer messages or they cannot be sent
+        if len(message) >= 1024:
+            formatting_chars_len = len(
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'</p></p>')
+            
+            # Subtract 6 for ellipses; 
+            desired_msg_len = (1024 - formatting_chars_len - 6) // 2
+            translated_msg = f'{translation[0:desired_msg_len]}...'
+            untranslated_msg = f'{untranslated_msg[0:desired_msg_len]}...'
+            message = (
+                f'<p><p>{link}/{message_id} ↩\n\n'
+                f'{border}\n'
+                f'<p><b>{html.escape(chat_name)}</b>\n</p>'
+                f'{border}\n\n</p>'
+                f'<p>[ORIGINAL MESSAGE]\n'
+                f'{html.escape(untranslated_msg)}\n\n</p>'
+                f'<p>[TRANSLATED MESSAGE]\n'
+                f'{html.escape(translated_msg)}</p></p>')
+
+        keyboard = [
+            [  
+                Button.inline("First option", b"1"), 
+                Button.inline("Second option", b"2")
+            ],
+            [
+                Button.inline("Third option", b"3"), 
+                Button.inline("Fourth option", b"4")
+            ],
+            [
+                Button.inline("Fifth option", b"5")
+            ]
+        ]
+            
+        try:
+            await client.send_message(buttons_channel, message, parse_mode='html', file=e.media, link_preview=False, buttons=keyboard)
+        except Exception as exc:
+            print('[Telethon] Error while forwarding video message with buttons!')
             print(exc)
             print(e.message)
 
