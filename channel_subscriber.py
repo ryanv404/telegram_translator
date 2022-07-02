@@ -1,27 +1,28 @@
 from telethon import TelegramClient
-from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.channels import JoinChannelRequest, GetFullChannelRequest
 from telethon import errors
 import asyncio
 import os
 import yaml
 import time
+from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 
 # Set config values
-api_id = os.environ.get('api_id')
-api_hash = os.environ.get('api_hash')
-phone = os.environ.get('phone')
-username = os.environ.get('username')
-channel_link = os.environ.get('channel_link')
+# api_id = os.environ.get('api_id')
+# api_hash = os.environ.get('api_hash')
+# phone = os.environ.get('phone')
+# username = os.environ.get('username')
+# channel_link = os.environ.get('channel_link')
 
 with open('config.yml', 'rb') as f:
     config = yaml.safe_load(f)
+
+with open('channel_names.yml', 'rb') as f:
+    names = yaml.safe_load(f)
+    channel_names = names["channel_names"]
     
 # Create the client
 async def start():
-    with open('channel_names.yml', 'rb') as f:
-        channel_names = yaml.safe_load(f)
-        channel_names = channel_names['channel_names']
-
     client = TelegramClient(config["session_name"], config["api_id"], config["api_hash"])
     await client.start()
 
