@@ -1,5 +1,7 @@
-# config.yml
+config.yml
 *.session-journal
-# *.session
+*.session
 /__pycache__
 /old files
+Procfile
+*.txt
