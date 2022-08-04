@@ -1,11 +1,5 @@
-config.ini
 # config.yml
 *.session-journal
 # *.session
-*.jpg
-*.txt
-*.png
-*.ipynb
-/real-time-tweet-streamer
 /__pycache__
-/real-time-tweet-stream
+/old files
