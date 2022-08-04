@@ -57,11 +57,11 @@ print(f"[Telethon] Listening to {num_input_channels} {'channel' if num_input_cha
 print(f"[Telethon] Forwarding messages to {num_output_channels} {'channel' if num_output_channels == 1 else 'channels'}.")
 
 # Output channels
-war_news_channel = config['output_channel_ids'][0]
-rus_videos_channel = config['output_channel_ids'][1]
-rus_photos_channel = config['output_channel_ids'][2]
-ukr_videos_channel = config['output_channel_ids'][3]
-ukr_photos_channel = config['output_channel_ids'][4]
+war_news_channel = channels['output_channel_ids'][0]
+rus_videos_channel = channels['output_channel_ids'][1]
+rus_photos_channel = channels['output_channel_ids'][2]
+ukr_videos_channel = channels['output_channel_ids'][3]
+ukr_photos_channel = channels['output_channel_ids'][4]
 
 # Get the title or username of the input channel
 def get_channel_name(chat):
