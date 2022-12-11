@@ -1,7 +1,6 @@
-config.yml
-*.session-journal
-*.session
+# Exclude the following from the Git repository
+/old_files
 /__pycache__
-/old files
-Procfile
-*.txt
+.dockerignore
+src/config.yml
+src/*.session
