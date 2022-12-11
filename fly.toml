@@ -1,4 +1,4 @@
-# fly.toml file generated for telegram-listener on 2022-12-10T16:39:29-06:00
+# fly.toml file generated for telegram-listener on 2022-12-11T12:14:23-06:00
 
 app = "telegram-listener"
 kill_signal = "SIGINT"
@@ -6,7 +6,7 @@ kill_timeout = 5
 processes = []
 
 [build]
-  image = "ryanv404/telegram_translator"
+  image = "ryanv404/telegram-translator:v2"
 
 [env]
 

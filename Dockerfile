@@ -13,5 +13,8 @@ RUN pip install -r requirements.txt
 # Copy the content of the local src directory to the working directory
 COPY src/ .
 
+# Expose container's port 8080
+EXPOSE 8080
+
 # Command to run on container start
 CMD [ "python", "./listener.py" ]
